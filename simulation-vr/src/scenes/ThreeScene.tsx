@@ -33,12 +33,12 @@ export class ThreeScene extends React.Component<Props> {
   protected _scene: THREE.Scene;
   protected _camera: THREE.PerspectiveCamera;
   protected _renderer: THREE.WebGLRenderer;
-  protected _mount: HTMLDivElement | null = null;
+  protected _container: HTMLDivElement | null = null;
   protected _frameId: number | null = null;
   protected _objects: ThreeObjects = [];
   protected _cnt: number = 0;
   protected _orbit_controls: any;
-  protected _container: any;
+  protected _isKeyDown: any = {};
 
   state = {
     camera_pos_x: 0
@@ -72,25 +72,41 @@ export class ThreeScene extends React.Component<Props> {
     this.onButtonClick = this.onButtonClick.bind(this);
     this.createObjects = this.createObjects.bind(this);
     this.update = this.update.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
   }
 
   componentDidMount(): void {
     this._objects.map(obj => this._scene.add(obj.obj));
-    if (this._mount) {
-      this._mount.appendChild(this._renderer.domElement);
+    if (this._container) {
+      this._container.appendChild(this._renderer.domElement);
 
-      this._orbit_controls = new OrbitControls(this._camera, this._mount);
-      this._orbit_controls.target.set( 0, 1.6, 0 );
+      this._orbit_controls = new OrbitControls(this._camera, this._container);
+      this._orbit_controls.target.set( 0, 0, 0 );
       this._orbit_controls.update();
     }
     this.start();
     ReactDOM.render(<div id='vr_button'/>, document.body.appendChild(VRButton.createButton( this._renderer )))
+    window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  handleKeyDown(event: KeyboardEvent): void {
+    this._isKeyDown[`key_${event.key}`] = true
+  }
+
+  handleKeyUp(event: KeyboardEvent): void {
+    this._isKeyDown[`key_${event.key}`] = false
+  }
+
+  isKeyPressed(key: string): boolean {
+    return this._isKeyDown[`key_${key}`]
   }
 
   componentWillUnmount(): void {
     this.stop()
-    if (this._mount) {
-      this._mount.removeChild(this._renderer.domElement);
+    if (this._container) {
+      this._container.removeChild(this._renderer.domElement);
     }
   }
 
@@ -136,7 +152,7 @@ export class ThreeScene extends React.Component<Props> {
       <div>
         <div
           style={{ width: this.props.width, height: this.props.height }}
-          ref={(mount) => { this._mount = mount }}
+          ref={(container) => { this._container = container }}
         />
         <Button variant="contained" color="primary" onClick={this.onButtonClick}>
           {this._camera.position.x}

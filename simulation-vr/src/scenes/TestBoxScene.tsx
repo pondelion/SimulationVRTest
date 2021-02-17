@@ -23,6 +23,19 @@ class TestBoxScene extends CoordinateAxisScene {
     const idx = this._objects.findIndex(obj => obj.tag === 'box1');
     this._objects[idx].obj.rotation.x += 0.01;
     this._objects[idx].obj.rotation.y += 0.01;
+
+    if (this.isKeyPressed('ArrowUp')) {
+      this._objects[idx].obj.position.y += 0.1;
+    } 
+    if (this.isKeyPressed('ArrowDown')) {
+      this._objects[idx].obj.position.y -= 0.1;
+    }
+    if (this.isKeyPressed('ArrowRight')) {
+      this._objects[idx].obj.position.x += 0.1;
+    }
+    if (this.isKeyPressed('ArrowLeft')) {
+      this._objects[idx].obj.position.x -= 0.1;
+    }
     super.update(cnt);
   }
 
@@ -31,7 +44,10 @@ class TestBoxScene extends CoordinateAxisScene {
 
     objs.push({
       tag: 'box1',
-      obj: OF.createBox(0.0, 0.0, 0.0),
+      obj: OF.createTorusKnot(
+        0.0, 0.0, 0.0,
+        // 0.1, 1, 6.7, 10, 3, 40
+      ),
       objType: 'box'
     }) 
     return objs;

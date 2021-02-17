@@ -39,14 +39,15 @@ export class ObjectFactory {
     size_z: number = 1.0,
     opacity: number = 1.0,
     color: number = 0xff0000,
+    side: THREE.Side = THREE.FrontSide
   ): THREE.Mesh {
     const box = new THREE.Mesh(
         new THREE.BoxGeometry(size_x, size_y, size_z),
-        new THREE.MeshLambertMaterial({
+        new THREE.MeshStandardMaterial({
           color: color,
           opacity: opacity,
           transparent: true,
-          side: THREE.DoubleSide,
+          side: side,
           depthWrite: false
         })
     );
@@ -127,6 +128,36 @@ export class ObjectFactory {
     sprite.scale.z = scale;
 
     return sprite;
+  }
+
+  static createTorusKnot(
+    pos_x: number = 0,
+    pos_y: number = 0,
+    pos_z: number = 0,
+    radius: number = 1,
+    tube: number = 0.4,
+    tubularSegments: number = 64,
+    radiusSegments: number = 8,
+    p: number = 2,
+    q: number = 3,
+    opacity: number = 1.0,
+    color: number = 0x6699FF,
+    roughness: number = 0.5,
+    side: THREE.Side = THREE.FrontSide
+  ): THREE.Mesh {
+    const geometry = new THREE.TorusKnotGeometry(
+      radius, tube, tubularSegments, radiusSegments, p, q
+    )
+    const material = new THREE.MeshStandardMaterial({
+      color: color,
+      opacity: opacity,
+      transparent: true,
+      side: side,
+      roughness: roughness,
+    })
+    const torus = new THREE.Mesh(geometry, material);
+    torus.position.set(pos_x, pos_y, pos_z);
+    return torus
   }
 }
 
