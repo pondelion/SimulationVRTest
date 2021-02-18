@@ -10,16 +10,22 @@ export class ObjectFactory {
     radius: number = 1.0,
     opacity: number = 1.0,
     color: number = 0x22DD22,
+    side: THREE.Side = THREE.FrontSide,
+    texture_filepath?: string,
   ): THREE.Mesh {
     const sphereRadius = radius;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 20, 20);
-    const sphereMaterial = new THREE.MeshLambertMaterial({
+    let matArgs: any = {
       color: color,
       opacity: opacity,
       transparent: true,
-      side: THREE.DoubleSide,
+      side: side,
       depthWrite: false
-    })
+    };
+    if (texture_filepath !== undefined) {
+      matArgs['map'] = (new THREE.TextureLoader()).load(texture_filepath);
+    }
+    const sphereMaterial = new THREE.MeshLambertMaterial(matArgs);
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
     sphere.position.x = pos_x;
@@ -39,17 +45,22 @@ export class ObjectFactory {
     size_z: number = 1.0,
     opacity: number = 1.0,
     color: number = 0xff0000,
-    side: THREE.Side = THREE.FrontSide
+    side: THREE.Side = THREE.FrontSide,
+    texture_filepath?: string,
   ): THREE.Mesh {
+    let matArgs: any = {
+      color: color,
+      opacity: opacity,
+      transparent: true,
+      side: side,
+      depthWrite: false
+    };
+    if (texture_filepath !== undefined) {
+      matArgs['map'] = (new THREE.TextureLoader()).load(texture_filepath);
+    }
     const box = new THREE.Mesh(
         new THREE.BoxGeometry(size_x, size_y, size_z),
-        new THREE.MeshStandardMaterial({
-          color: color,
-          opacity: opacity,
-          transparent: true,
-          side: side,
-          depthWrite: false
-        })
+        new THREE.MeshStandardMaterial(matArgs)
     );
     box.receiveShadow = true;
 
@@ -64,21 +75,30 @@ export class ObjectFactory {
     rotation_x: number = -0.5*Math.PI, 
     rotation_y: number = 0,
     rotation_z: number = 0,
-    color: number = 0xff0000,
-    size_h: number = 50,
-    size_w:number = 50,
+    opacity: number = 1.0,
+    color: number = 0xffffff,
+    size_h: number = 3,
+    size_w:number = 3,
+    side: THREE.Side = THREE.DoubleSide,
+    texture_filepath?: string,
   ): THREE.Mesh {
     const planeGeometry = new THREE.PlaneGeometry(size_w, size_h, 1, 1);
-    const planeMaterial = new THREE.MeshLambertMaterial({color: color});
+    let matArgs: any = {
+      color: color,
+      opacity: opacity,
+      transparent: true,
+      side: side
+    };
+    if (texture_filepath !== undefined) {
+      matArgs['map'] = (new THREE.TextureLoader()).load(texture_filepath);
+    }
+    const planeMaterial = new THREE.MeshStandardMaterial(matArgs);
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
+    plane.castShadow = true;
 
-    plane.rotation.x = rotation_x;
-    plane.rotation.y = rotation_y;
-    plane.rotation.z = rotation_z;
-    plane.position.x = pos_x;
-    plane.position.y = pos_y;
-    plane.position.z = pos_z;
+    plane.rotation.set(rotation_x, rotation_y, rotation_z);
+    plane.position.set(pos_x, pos_y, pos_z);
 
     return plane;
   }
@@ -143,22 +163,30 @@ export class ObjectFactory {
     opacity: number = 1.0,
     color: number = 0x6699FF,
     roughness: number = 0.5,
-    side: THREE.Side = THREE.FrontSide
+    side: THREE.Side = THREE.FrontSide,
+    texture_filepath?: string,
   ): THREE.Mesh {
     const geometry = new THREE.TorusKnotGeometry(
       radius, tube, tubularSegments, radiusSegments, p, q
     )
-    const material = new THREE.MeshStandardMaterial({
+    let matArgs: any = {
       color: color,
       opacity: opacity,
       transparent: true,
       side: side,
       roughness: roughness,
-    })
+    };
+    if (texture_filepath !== undefined) {
+      matArgs['map'] = (new THREE.TextureLoader()).load(texture_filepath);
+    }
+    const material = new THREE.MeshStandardMaterial(matArgs);
     const torus = new THREE.Mesh(geometry, material);
+    torus.receiveShadow = true;
+    torus.castShadow = true;
     torus.position.set(pos_x, pos_y, pos_z);
     return torus
   }
+
 }
 
 export default ObjectFactory;

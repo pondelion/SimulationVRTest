@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { ThreeObjects } from './ThreeScene';
 import { Props as CASProps, CoordinateAxisScene} from './CoordinateAxisScene';
 import { ObjectFactory as OF } from '../utils/three/ObjectFactory';
@@ -6,7 +7,7 @@ import { ObjectFactory as OF } from '../utils/three/ObjectFactory';
 export interface Props extends CASProps {};
 
 
-class TestBoxScene extends CoordinateAxisScene {
+class TestScene extends CoordinateAxisScene {
 
   constructor(props: Props) {
     super(props);
@@ -20,10 +21,10 @@ class TestBoxScene extends CoordinateAxisScene {
     this.forceUpdate();
   }
 
-  update(cnt: number): void {
-    super.update(cnt);
+  update(delta: number): void {
+    super.update(delta);
 
-    const idx = this._objects.findIndex(obj => obj.tag === 'box1');
+    let idx = this._objects.findIndex(obj => obj.tag === 'box1');
     this._objects[idx].obj.rotation.x += 0.01;
     this._objects[idx].obj.rotation.y += 0.01;
 
@@ -41,7 +42,6 @@ class TestBoxScene extends CoordinateAxisScene {
     }
 
     if ((this._intersectedObj !== null) && (this._intersectedObj.type === 'Mesh')) {
-      console.log(this._intersectedObj);
       let mat = (this._intersectedObj as THREE.Mesh).material;
       (mat as THREE.MeshLambertMaterial).color.set(Math.random() * 0xffffff);
       (this._intersectedObj as THREE.Mesh).scale.set(1.5, 1.5, 1.5);
@@ -49,6 +49,8 @@ class TestBoxScene extends CoordinateAxisScene {
       (this._lastIntersectedObj as THREE.Mesh).scale.set(1, 1, 1);
     }
 
+    idx = this._objects.findIndex(obj => obj.tag === 'plane1');
+    this._objects[idx].obj.position.y = Math.sin(1.0*this._clock.getElapsedTime());
   }
 
   createObjects(): ThreeObjects {
@@ -57,13 +59,27 @@ class TestBoxScene extends CoordinateAxisScene {
     objs.push({
       tag: 'box1',
       obj: OF.createTorusKnot(
-        0.0, 0.0, 0.0,
+        0.0, 0.2, 0.0,
         // 0.1, 1, 6.7, 10, 3, 40
       ),
       objType: 'box'
     }) 
+    objs.push({
+      tag: 'plane1',
+      obj: OF.createPlane(
+        0, 0, 0,
+        -0.5*Math.PI, 0, 0,
+        0.6,
+        0xffffff,
+        10, 10,
+        THREE.DoubleSide,
+        'https://threejsfundamentals.org/threejs/resources/images/wall.jpg'
+      ),
+      objType: 'plane'
+    })
+
     return objs;
   }
 }
 
-export default TestBoxScene;
+export default TestScene;

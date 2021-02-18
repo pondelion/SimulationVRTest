@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as THREE from 'three';
-import Button from '@material-ui/core/Button';
 import { VRButton } from '../components/VRButton';
 import { OrbitControls } from '../components/OrbitControls';
 
@@ -51,10 +50,7 @@ export class ThreeScene extends React.Component<Props> {
   protected _mousePos: PosVec2 = {x: 0, y: 0};
   protected _intersectedObj: THREE.Object3D | null = null;
   protected _lastIntersectedObj: THREE.Object3D | null = null;
-
-  state = {
-    camera_pos_x: 0
-  };
+  protected _clock: THREE.Clock = new THREE.Clock();
 
   constructor(props: Props) {
     super(props);
@@ -86,6 +82,7 @@ export class ThreeScene extends React.Component<Props> {
       this._bgColor = props.bgColor;
     }
     this._renderer.setClearColor(this._bgColor);
+    this._renderer.shadowMap.enabled = true;
     this._renderer.xr.enabled = true;
 
     this._raycaster = new THREE.Raycaster();
@@ -93,7 +90,9 @@ export class ThreeScene extends React.Component<Props> {
     this._intersectedObj = null;
     this._lastIntersectedObj = null;
 
-    this.onButtonClick = this.onButtonClick.bind(this);
+    this._clock = new THREE.Clock();
+    this._clock.getElapsedTime();
+
     this.createObjects = this.createObjects.bind(this);
     this.update = this.update.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -144,7 +143,7 @@ export class ThreeScene extends React.Component<Props> {
   start(): void {
     this._renderer.setAnimationLoop( () => {
       this._cnt += 1;
-      this.update(this._cnt);
+      this.update(this._clock.getDelta());
       this._renderer.render(this._scene, this._camera);
     })
   }
@@ -152,7 +151,7 @@ export class ThreeScene extends React.Component<Props> {
   stop(): void {
   }
 
-  update(cnt: number): void {
+  update(delta: number): void {
     this._raycaster.setFromCamera(
       new THREE.Vector2(this._mousePos.x, this._mousePos.y),
       this._camera
@@ -176,16 +175,17 @@ export class ThreeScene extends React.Component<Props> {
     this._scene.remove.apply(this._scene, this._scene.children);
     this._objects.map(obj => this._scene.add(obj.obj));
 
-    const ambientLight = new THREE.AmbientLight(0x222222);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this._scene.add(ambientLight);
 
-    const spotLight = new THREE.SpotLight(0xffffff);
-    spotLight.position.set(10, 10, 10);
+    const spotLight = new THREE.SpotLight(0xffffff, 2.0, 100, Math.PI / 4, 1);
+    spotLight.position.set(2, 7, 2);
     spotLight.castShadow = true;
     this._scene.add(spotLight);
 
-    const sunLight = new THREE.DirectionalLight( 'rgb(255,255,255)', 1 );
-    this._scene.add(sunLight);
+    // const sunLight = new THREE.DirectionalLight('rgb(255,255,255)', 1);
+    // spotLight.castShadow = true;
+    // this._scene.add(sunLight);
   }
 
   addObject(obj: ThreeObject): void {
@@ -193,9 +193,12 @@ export class ThreeScene extends React.Component<Props> {
     this.onObjectsUpdated();
   }
 
-  onButtonClick(): void {
-    this._camera.position.x += 1;
-    this.setState({camera_pos_x: this.state.camera_pos_x + 1});
+  getCamPos(): THREE.Vector3 {
+    return this._camera.position;
+  }
+
+  setCamPos(x: number, y: number, z: number): void {
+    this._camera.position.set(x, y, z);
   }
 
   render() {
@@ -205,9 +208,6 @@ export class ThreeScene extends React.Component<Props> {
           style={{ width: this.props.width, height: this.props.height }}
           ref={(container) => { this._container = container }}
         />
-        <Button variant="contained" color="primary" onClick={this.onButtonClick}>
-          {this._camera.position.x}
-        </Button>
         <div id='vr_button'/>
       </div>
     )
