@@ -33,6 +33,7 @@ export interface Props {
   bgColor?: THREE.Color
 };
 
+// export interface States {open: boolean};
 
 export class ThreeScene extends React.Component<Props> {
 
@@ -186,6 +187,8 @@ export class ThreeScene extends React.Component<Props> {
     // const sunLight = new THREE.DirectionalLight('rgb(255,255,255)', 1);
     // spotLight.castShadow = true;
     // this._scene.add(sunLight);
+
+    this.forceUpdate();
   }
 
   addObject(obj: ThreeObject): void {

@@ -9,7 +9,7 @@ export class ObjectFactory {
     pos_z: number = 0.0,
     radius: number = 1.0,
     opacity: number = 1.0,
-    color: number = 0x22DD22,
+    color: number | string = 0x22DD22,
     side: THREE.Side = THREE.FrontSide,
     texture_filepath?: string,
   ): THREE.Mesh {
@@ -44,7 +44,7 @@ export class ObjectFactory {
     size_y: number = 1.0,
     size_z: number = 1.0,
     opacity: number = 1.0,
-    color: number = 0xff0000,
+    color: number | string = 0xff0000,
     side: THREE.Side = THREE.FrontSide,
     texture_filepath?: string,
   ): THREE.Mesh {
@@ -76,7 +76,7 @@ export class ObjectFactory {
     rotation_y: number = 0,
     rotation_z: number = 0,
     opacity: number = 1.0,
-    color: number = 0xffffff,
+    color: number | string = 0xffffff,
     size_h: number = 3,
     size_w:number = 3,
     side: THREE.Side = THREE.DoubleSide,
@@ -115,7 +115,7 @@ export class ObjectFactory {
     rotation_y: number = 0,
     rotation_z: number = 0,
     length: number = 0.8,
-    color: number = 0x00ff00,
+    color: number | string = 0x00ff00,
     headWidth: number = 0.3,
     headLength: number = 0.3
   ): THREE.ArrowHelper {
@@ -136,7 +136,7 @@ export class ObjectFactory {
     pos_y: number = 0,
     pos_z: number = 0,
     scale: number = 0.2,
-    color: number = 0x0000ee,
+    color: number | string = 0x0000ee,
   ): THREE.Sprite {
     const material = new THREE.SpriteMaterial({color: color});
     const sprite = new THREE.Sprite(material);
@@ -161,7 +161,7 @@ export class ObjectFactory {
     p: number = 2,
     q: number = 3,
     opacity: number = 1.0,
-    color: number = 0x6699FF,
+    color: number | string = 0x6699FF,
     roughness: number = 0.5,
     side: THREE.Side = THREE.FrontSide,
     texture_filepath?: string,
