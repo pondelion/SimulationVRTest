@@ -1,9 +1,10 @@
-import { Props as ThreeProps, ThreeObjects } from './ThreeScene';
-import CoordinateAxisScene from './CoordinateAxisScene';
+import { ThreeObjects } from './ThreeScene';
+import { Props as CASProps, CoordinateAxisScene} from './CoordinateAxisScene';
 import { ObjectFactory as OF } from '../utils/three/ObjectFactory';
 
 
-type Props = ThreeProps;
+export interface Props extends CASProps {};
+
 
 class TestBoxScene extends CoordinateAxisScene {
 
@@ -14,12 +15,14 @@ class TestBoxScene extends CoordinateAxisScene {
     this.createObjects = this.createObjects.bind(this);
 
     this._objects = this.createObjects();
-    this.onObjectsUpdated();
 
+    this.onObjectsUpdated();
     this.forceUpdate();
   }
 
   update(cnt: number): void {
+    super.update(cnt);
+
     const idx = this._objects.findIndex(obj => obj.tag === 'box1');
     this._objects[idx].obj.rotation.x += 0.01;
     this._objects[idx].obj.rotation.y += 0.01;
@@ -36,7 +39,16 @@ class TestBoxScene extends CoordinateAxisScene {
     if (this.isKeyPressed('ArrowLeft')) {
       this._objects[idx].obj.position.x -= 0.1;
     }
-    super.update(cnt);
+
+    if ((this._intersectedObj !== null) && (this._intersectedObj.type === 'Mesh')) {
+      console.log(this._intersectedObj);
+      let mat = (this._intersectedObj as THREE.Mesh).material;
+      (mat as THREE.MeshLambertMaterial).color.set(Math.random() * 0xffffff);
+      (this._intersectedObj as THREE.Mesh).scale.set(1.5, 1.5, 1.5);
+    } else if ((this._lastIntersectedObj !== null) && (this._lastIntersectedObj.type === 'Mesh')) {
+      (this._lastIntersectedObj as THREE.Mesh).scale.set(1, 1, 1);
+    }
+
   }
 
   createObjects(): ThreeObjects {

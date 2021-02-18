@@ -5,19 +5,17 @@ import { ObjectFactory as OF } from '../utils/three/ObjectFactory';
 // interface Props extends ThreeProps {
 //   axis_length: number;
 // }
-interface Props extends ThreeProps {};
+export interface Props extends ThreeProps {};
 
 
-class CoordinateAxisScene extends ThreeScene {
+export class CoordinateAxisScene extends ThreeScene {
 
   // protected _axis_length: number = 1.0;
 
   constructor(props: Props) {
     super(props as ThreeProps);
-
-    // if (props.axis_length !== null) {
-    //   this._axis_length = props.axis_length;
-    // }
+  
+    this._objects = this.createObjects();
 
     this.update = this.update.bind(this);
     this.createObjects = this.createObjects.bind(this);

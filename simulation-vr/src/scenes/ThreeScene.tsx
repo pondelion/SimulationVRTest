@@ -6,7 +6,12 @@ import { VRButton } from '../components/VRButton';
 import { OrbitControls } from '../components/OrbitControls';
 
 
-type Vec3 = {
+type PosVec2 = {
+  x: number,
+  y: number,
+};
+
+type PosVec3 = {
   x: number,
   y: number,
   z: number,
@@ -23,8 +28,10 @@ export type ThreeObjects = ThreeObject[];
 export interface Props {
   width: number,
   height: number,
-  cameraPos: Vec3,
+  cameraPos: PosVec3,
   onObjectsChanged?: (objs: ThreeObjects) => {},
+  lookAt?: PosVec3,
+  bgColor?: THREE.Color
 };
 
 
@@ -34,11 +41,16 @@ export class ThreeScene extends React.Component<Props> {
   protected _camera: THREE.PerspectiveCamera;
   protected _renderer: THREE.WebGLRenderer;
   protected _container: HTMLDivElement | null = null;
-  protected _frameId: number | null = null;
   protected _objects: ThreeObjects = [];
   protected _cnt: number = 0;
-  protected _orbit_controls: any;
-  protected _isKeyDown: any = {};
+  protected _orbitControls: OrbitControls | null = null;
+  protected _isKeyDown: {[key: string]: boolean} = {};
+  protected _lookAt: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+  protected _bgColor: THREE.Color = new THREE.Color('#b4bad2');
+  protected _raycaster = new THREE.Raycaster();
+  protected _mousePos: PosVec2 = {x: 0, y: 0};
+  protected _intersectedObj: THREE.Object3D | null = null;
+  protected _lastIntersectedObj: THREE.Object3D | null = null;
 
   state = {
     camera_pos_x: 0
@@ -62,18 +74,31 @@ export class ThreeScene extends React.Component<Props> {
     this._camera.position.y = this.props.cameraPos.y;
     this._camera.position.z = this.props.cameraPos.z;
 
-    this._camera.lookAt(new THREE.Vector3(0, 0, 0));
+    this._lookAt = props.lookAt === undefined ? 
+        new THREE.Vector3(0, 0, 0) : 
+        new THREE.Vector3(props.lookAt.x, props.lookAt.y, props.lookAt.z)
+    this._camera.lookAt(new THREE.Vector3(this._lookAt.x, this._lookAt.y, this._lookAt.z));
 
     this._renderer = new THREE.WebGLRenderer({ antialias: true });
     this._renderer.setSize(width, height);
-    this._renderer.setClearColor('#b4bad2');
+
+    if (props.bgColor !== undefined) {
+      this._bgColor = props.bgColor;
+    }
+    this._renderer.setClearColor(this._bgColor);
     this._renderer.xr.enabled = true;
+
+    this._raycaster = new THREE.Raycaster();
+
+    this._intersectedObj = null;
+    this._lastIntersectedObj = null;
 
     this.onButtonClick = this.onButtonClick.bind(this);
     this.createObjects = this.createObjects.bind(this);
     this.update = this.update.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
   }
 
   componentDidMount(): void {
@@ -81,14 +106,15 @@ export class ThreeScene extends React.Component<Props> {
     if (this._container) {
       this._container.appendChild(this._renderer.domElement);
 
-      this._orbit_controls = new OrbitControls(this._camera, this._container);
-      this._orbit_controls.target.set( 0, 0, 0 );
-      this._orbit_controls.update();
+      this._orbitControls = new OrbitControls(this._camera, this._container);
+      this._orbitControls.target.set( 0, 0, 0 );
+      this._orbitControls.update();
     }
     this.start();
-    ReactDOM.render(<div id='vr_button'/>, document.body.appendChild(VRButton.createButton( this._renderer )))
+    ReactDOM.render(<div id='vr_button'/>, document.body.appendChild(VRButton.createButton( this._renderer )));
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
+    window.addEventListener('mousemove', this.handleMouseMove);
   }
 
   handleKeyDown(event: KeyboardEvent): void {
@@ -103,6 +129,11 @@ export class ThreeScene extends React.Component<Props> {
     return this._isKeyDown[`key_${key}`]
   }
 
+  handleMouseMove(event: MouseEvent): void {
+    this._mousePos.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    this._mousePos.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  }
+
   componentWillUnmount(): void {
     this.stop()
     if (this._container) {
@@ -114,7 +145,6 @@ export class ThreeScene extends React.Component<Props> {
     this._renderer.setAnimationLoop( () => {
       this._cnt += 1;
       this.update(this._cnt);
-      // this._orbit_controls.update();
       this._renderer.render(this._scene, this._camera);
     })
   }
@@ -123,6 +153,19 @@ export class ThreeScene extends React.Component<Props> {
   }
 
   update(cnt: number): void {
+    this._raycaster.setFromCamera(
+      new THREE.Vector2(this._mousePos.x, this._mousePos.y),
+      this._camera
+    );
+    const intersects = this._raycaster.intersectObject(this._scene, true);
+    // for (let i=0; i<intersects.length; ++i) {
+    if (intersects.length > 0) {
+        const object = intersects[0].object;
+        this._intersectedObj = object;
+    } else if (this._intersectedObj != null) {
+      this._lastIntersectedObj = this._intersectedObj;
+      this._intersectedObj = null;
+    }
   }
 
   createObjects(): ThreeObjects {
@@ -140,6 +183,14 @@ export class ThreeScene extends React.Component<Props> {
     spotLight.position.set(10, 10, 10);
     spotLight.castShadow = true;
     this._scene.add(spotLight);
+
+    const sunLight = new THREE.DirectionalLight( 'rgb(255,255,255)', 1 );
+    this._scene.add(sunLight);
+  }
+
+  addObject(obj: ThreeObject): void {
+    this._objects.push(obj);
+    this.onObjectsUpdated();
   }
 
   onButtonClick(): void {
