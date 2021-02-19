@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { bubble as BurgerMenu } from 'react-burger-menu';
-import TestScene from '../scenes/TestScene'
-import DigitDistributionScene from '../scenes/DigitDistributionScene'
+import TestScene from '../scenes/TestScene';
+import DigitDistributionScene from '../scenes/DigitDistributionScene';
+import CompanyFinancialDistributionScene from '../scenes/CompanyFinancialDistributionScene';
 
 
 interface State {
@@ -127,6 +128,7 @@ export class BubbleMenu extends React.Component<Props> {
             );
             e.preventDefault();
           }}>Test Scene</a>
+
           <a id='digit_distribution_scene' className="menu-item" href="/#" onClick={e => {
             ReactDOM.render(
               <DigitDistributionScene
@@ -138,6 +140,18 @@ export class BubbleMenu extends React.Component<Props> {
             );
             e.preventDefault();
           }}>Digit Distribution Scene</a>
+
+          <a id='financial_distribution_scene' className="menu-item" href="/#" onClick={e => {
+            ReactDOM.render(
+              <CompanyFinancialDistributionScene
+                width={0.9*window.innerWidth}
+                height={0.9*window.innerHeight}
+                cameraPos={{x: 5, y: 5, z: 5}}
+              />,
+              document.getElementById('scene')
+            );
+            e.preventDefault();
+          }}>Financial Distribution Scene</a>
         </BurgerMenu>
       </div>
     )

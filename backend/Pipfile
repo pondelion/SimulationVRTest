@@ -7,6 +7,8 @@ name = "pypi"
 fastapi = "*"
 uvicorn = "*"
 scikit-learn = "*"
+fsspec = "*"
+pandas = "*"
 
 [dev-packages]
 
