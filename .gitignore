@@ -1,1 +1,6 @@
 .eslintcache
+backend/digit_reduced_2d.npy
+backend/digit_reduced_3d.npy
+backend/financial_cluster.npy
+backend/financial_reduced_2d.npy
+backend/financial_reduced_3d.npy

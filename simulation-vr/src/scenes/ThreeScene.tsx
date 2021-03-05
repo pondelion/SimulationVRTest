@@ -191,9 +191,24 @@ export class ThreeScene extends React.Component<Props> {
     this.forceUpdate();
   }
 
-  addObject(obj: ThreeObject): void {
+  addObject(
+    obj: ThreeObject,
+    forceRedraw: boolean = true
+  ): void {
     this._objects.push(obj);
-    this.onObjectsUpdated();
+    if (forceRedraw) {
+      this.onObjectsUpdated();
+    }
+  }
+
+  addObjects(
+    objs: ThreeObjects,
+    forceRedraw: boolean = true
+  ): void {
+    this._objects = this._objects.concat(objs)
+    if (forceRedraw) {
+      this.onObjectsUpdated();
+    }
   }
 
   getCamPos(): THREE.Vector3 {

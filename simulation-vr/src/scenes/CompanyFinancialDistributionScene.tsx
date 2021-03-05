@@ -5,7 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import SpriteText from 'three-spritetext';
 import { Props as CASProps, CoordinateAxisScene} from './CoordinateAxisScene';
 import { ObjectFactory as OF } from '../utils/three/ObjectFactory'
-import { SERVER_IP, SERVER_PORT } from '../Config'
+import { APIBaseURL } from '../Config'
 
 export interface Props extends CASProps {};
 
@@ -20,7 +20,9 @@ export class CompanyFinancialDistributionScene extends CoordinateAxisScene {
     this._objects = super.createObjects();
 
     this._open = true;
-    const url: string = `http://${SERVER_IP}:${SERVER_PORT}/financial_distdata/3`
+
+    const api_base_url: string | null = APIBaseURL();
+    const url: string = `${api_base_url}/financial_distdata/3`
     axios
       .get(url)
       .then((res) => {
@@ -65,7 +67,7 @@ export class CompanyFinancialDistributionScene extends CoordinateAxisScene {
         console.log(err);
         this._open = false;
         this.forceUpdate();
-        alert(`Could not fetch data from backend server ${url}`)
+        alert(`Could not fetch data from backend server ${url} : ${err}`)
       });
   }
 

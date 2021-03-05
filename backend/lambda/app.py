@@ -1,49 +1,18 @@
-import os
-import warnings
+import json
 
-from fastapi import FastAPI, Query
-from starlette.middleware.cors import CORSMiddleware
-from sklearn.datasets import load_digits
-from sklearn.manifold import TSNE
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import MinMaxScaler
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.datasets import load_digits
 
-
-warnings.filterwarnings("ignore")
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
 
 digits = load_digits()
-data = digits.data
-label = digits.target
+digit_label = digits.target
 
 DIGIT_2D_DATA_FILEPATH = './digit_reduced_2d.npy'
 DIGIT_3D_DATA_FILEPATH = './digit_reduced_3d.npy'
 
-
-if os.path.exists(DIGIT_3D_DATA_FILEPATH):
-    digit_reduced3 = np.load(DIGIT_3D_DATA_FILEPATH)
-else:
-    digit_reduced3 = TSNE(n_components=3).fit_transform(data)
-    digit_reduced3 /= digit_reduced3.flatten().max()
-    np.save(DIGIT_3D_DATA_FILEPATH, digit_reduced3)
-
-if os.path.exists(DIGIT_2D_DATA_FILEPATH):
-    digit_reduced2 = np.load(DIGIT_2D_DATA_FILEPATH)
-else:
-    digit_reduced2 = TSNE(n_components=2).fit_transform(data)
-    digit_reduced2 /= digit_reduced2.flatten().max()
-    np.save(DIGIT_2D_DATA_FILEPATH, digit_reduced2)
-
+digit_reduced3 = np.load(DIGIT_3D_DATA_FILEPATH)
+digit_reduced2 = np.load(DIGIT_2D_DATA_FILEPATH)
 
 FINANCIAL_2D_DATA_FILEPATH = './financial_reduced_2d.npy'
 FINANCIAL_3D_DATA_FILEPATH = './financial_reduced_3d.npy'
@@ -71,55 +40,59 @@ latest_subdates_mask = (df_financial_data.groupby(['証券コード'])['会計�
 df_financial_latest = df_financial_data[latest_subdates_mask]
 df_financial_latest.set_index('証券コード', inplace=True)
 df_financial_latest.fillna(df_financial_latest.median(), inplace=True)
-if os.path.exists(FINANCIAL_3D_DATA_FILEPATH):
-    financial_reduced3 = np.load(FINANCIAL_3D_DATA_FILEPATH)
-else:
-    financial_reduced3 = TSNE(n_components=3).fit_transform(MinMaxScaler().fit_transform(df_financial_latest[target_cols]))
-    financial_reduced3 /= financial_reduced3.flatten().max()
-    np.save(FINANCIAL_3D_DATA_FILEPATH, financial_reduced3)
-if os.path.exists(FINANCIAL_2D_DATA_FILEPATH):
-    financial_reduced2 = np.load(FINANCIAL_2D_DATA_FILEPATH)
-else:
-    financial_reduced2 = TSNE(n_components=2).fit_transform(MinMaxScaler().fit_transform(df_financial_latest[target_cols]))
-    financial_reduced2 /= financial_reduced2.flatten().max()
-    np.save(FINANCIAL_2D_DATA_FILEPATH, financial_reduced3)
-if os.path.exists(FINANCIAL_CLUSTER_FILEPATH):
-    financial_classes = np.load(FINANCIAL_CLUSTER_FILEPATH)
-else:
-    km = KMeans(n_clusters=20).fit(MinMaxScaler().fit_transform(df_financial_latest[target_cols]))
-    financial_classes =  km.predict(MinMaxScaler().fit_transform(df_financial_latest[target_cols]))
-    np.save(FINANCIAL_CLUSTER_FILEPATH, financial_classes)
+
+financial_reduced3 = np.load(FINANCIAL_3D_DATA_FILEPATH)
+financial_reduced2 = np.load(FINANCIAL_2D_DATA_FILEPATH)
+
+financial_classes = np.load(FINANCIAL_CLUSTER_FILEPATH)
 
 
-@app.get('/healthcheck')
-async def healthcheck():
-    return 'ok'
+def handler(event, context):
+    print(event)
+    if event['resource'] == '/digit_distdata/{dim}':
+        return digit_distdata(event, context, int(event['pathParameters']['dim']))
+    elif event['resource'] == '/financial_distdata/{dim}':
+        return financial_distdata(event, context, int(event['pathParameters']['dim']))
+
+    return {
+        'statusCode': 404,
+        'body': json.dumps(f'{event["resource"]} not found.')
+    }
 
 
-@app.get('/api/digit_distdata/{dim}')
-async def digit_3d_distdata(
-    dim: int = Query(3, gt=2, le=3)
-):
+def digit_distdata(event, context, dim):
+
     if dim == 3:
         reduced = digit_reduced3
     elif dim == 2:
         reduced = digit_reduced2
 
-    return {'data': reduced.tolist(), 'label': label.tolist()}
+    body = {
+        'data': reduced.tolist(),
+        'label': digit_label.tolist()
+    }
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(body)
+    }
 
 
-@app.get('/api/financial_distdata/{dim}')
-async def financial_distdata(
-    dim: int = Query(3, gt=2, le=3)
-):
+def financial_distdata(event, context, dim):
+
     if dim == 3:
         reduced = financial_reduced3
     elif dim == 2:
         reduced = financial_reduced2
 
-    return {
+    body = {
         'data': reduced.tolist(),
         'company_name': df_financial_latest['会社名'].tolist(),
         'sector': df_financial_latest['業種'].tolist(),
         'class': financial_classes.tolist(),
+    }
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(body)
     }
