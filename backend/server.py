@@ -9,6 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
+import urllib.request
 
 
 warnings.filterwarnings("ignore")
@@ -93,6 +94,7 @@ else:
 
 @app.get('/healthcheck')
 async def healthcheck():
+    print('ok')
     return 'ok'
 
 
@@ -123,3 +125,18 @@ async def financial_distdata(
         'sector': df_financial_latest['業種'].tolist(),
         'class': financial_classes.tolist(),
     }
+
+
+@app.post('/api/save_image')
+async def save_image(
+    image_url: str,
+    filepath: str,
+):
+    print(image_url)
+    IMAGE_DIR = './image_data'
+    filepath = os.path.join(IMAGE_DIR, filepath)
+    savedir = os.path.dirname(filepath)
+    os.makedirs(savedir, exist_ok=True)
+    response = urllib.request.urlopen(image_url)
+    with open(filepath, 'wb') as f:
+        f.write(response.file.read())

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 
 const SERVER_HOST: string = '127.0.0.1';
@@ -17,8 +18,8 @@ const serverCheck = async () => {
       return url;
     })
     .catch((error: any) => {
-      console.log(error)
-      alert(`https://${SERVER_HOST}:${SERVER_PORT} is not available. Using lambda backend instead.`)
+      console.log(error);
+      Swal.fire(`https://${SERVER_HOST}:${SERVER_PORT} is not available. Using lambda backend instead. This could take long time.`);
       const url = LAMBDA_BASE_URL;
       return url
     })
@@ -28,7 +29,7 @@ serverCheck();
 
 export const APIBaseURL = () => {
   if (api_base_url === null) {
-    alert('Still checking server availability. Try again.');
+    Swal.fire('Still checking server availability. Try again.');
   }
   return api_base_url;
 }

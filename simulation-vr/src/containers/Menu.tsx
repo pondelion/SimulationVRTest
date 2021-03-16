@@ -4,6 +4,7 @@ import { bubble as BurgerMenu } from 'react-burger-menu';
 import TestScene from '../scenes/TestScene';
 import DigitDistributionScene from '../scenes/DigitDistributionScene';
 import CompanyFinancialDistributionScene from '../scenes/CompanyFinancialDistributionScene';
+import MDScene from '../scenes/MDScene';
 
 
 interface State {
@@ -110,6 +111,11 @@ const styles = {
 
 export class BubbleMenu extends React.Component<Props> {
 
+  public testSceneRef = React.createRef<TestScene>();
+  public digitSceneRef = React.createRef<DigitDistributionScene>();
+  public financialSceneRef = React.createRef<CompanyFinancialDistributionScene>();
+  public MDSceneRef = React.createRef<MDScene>();
+
   render() {
     return (
       <div className="App">
@@ -123,6 +129,7 @@ export class BubbleMenu extends React.Component<Props> {
                 width={0.9*window.innerWidth}
                 height={0.9*window.innerHeight}
                 cameraPos={{x: 5, y: 5, z: 5}}
+                ref={this.testSceneRef}
               />,
               document.getElementById('scene')
             );
@@ -135,6 +142,7 @@ export class BubbleMenu extends React.Component<Props> {
                 width={0.9*window.innerWidth}
                 height={0.9*window.innerHeight}
                 cameraPos={{x: 5, y: 5, z: 5}}
+                ref={this.digitSceneRef}
               />,
               document.getElementById('scene')
             );
@@ -147,11 +155,26 @@ export class BubbleMenu extends React.Component<Props> {
                 width={0.9*window.innerWidth}
                 height={0.9*window.innerHeight}
                 cameraPos={{x: 5, y: 5, z: 5}}
+                ref={this.financialSceneRef}
               />,
               document.getElementById('scene')
             );
             e.preventDefault();
           }}>Financial Distribution Scene</a>
+
+          <a id='md_scene' className="menu-item" href="/#" onClick={e => {
+            ReactDOM.render(
+              <MDScene
+                width={0.9*window.innerWidth}
+                height={0.9*window.innerHeight}
+                cameraPos={{x: 5, y: 5, z: 5}}
+                ref={this.MDSceneRef}
+              />,
+              document.getElementById('scene')
+            );
+            e.preventDefault();
+          }}>MD Scene</a>
+
         </BurgerMenu>
       </div>
     )

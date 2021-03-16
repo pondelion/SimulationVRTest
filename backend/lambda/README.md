@@ -36,13 +36,13 @@ $ sudo aws ecr get-login-password --region ap-northeast-1 | sudo docker login --
 - Tagging  
 
 ```sh
-$ sudo docker tag simulation-vr-test1:latest [YOUR ID].dkr.ecr.ap-northeast-1.amazonaws.com/simulation-vr-test1
+$ sudo docker tag simulation-vr-test1:latest [YOUR ID].dkr.ecr.ap-northeast-1.amazonaws.com/vr-simulation-test
 ```
 
 - Push to ECR  
 
 ```sh
-$ sudo docker push [YOUR ID].dkr.ecr.ap-northeast-1.amazonaws.com/simulation-vr-test1
+$ sudo docker push [YOUR ID].dkr.ecr.ap-northeast-1.amazonaws.com/vr-simulation-test
 ```
 
 ## Deploy lambda

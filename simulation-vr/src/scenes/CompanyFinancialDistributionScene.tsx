@@ -32,7 +32,7 @@ export class CompanyFinancialDistributionScene extends CoordinateAxisScene {
         
         console.log('start creating objs')
         const colorPalletes = niceColors[0].concat(niceColors[2]).concat(niceColors[3]).concat(niceColors[4]);
-        const objs = data.map((d: number[], idx: number) => {
+        const objs = data.slice(0, 800).map((d: number[], idx: number) => {
           return {
             tag: `sphere${idx}`,
             obj: OF.createSphere(
