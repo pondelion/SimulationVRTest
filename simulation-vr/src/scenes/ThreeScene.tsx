@@ -52,7 +52,7 @@ export class ThreeScene extends React.Component<Props> {
   protected _intersectedObj: THREE.Object3D | null = null;
   protected _lastIntersectedObj: THREE.Object3D | null = null;
   protected _clock: THREE.Clock = new THREE.Clock();
-  protected _renderToImageFile: boolean = false;
+  protected _takeImageSnapshot: boolean = false;
   protected _imageURL: string | null = null;
 
   constructor(props: Props) {
@@ -149,11 +149,9 @@ export class ThreeScene extends React.Component<Props> {
       this._cnt += 1;
       this.update(this._clock.getDelta());
       this._renderer.render(this._scene, this._camera);
-      // if (this._renderToImageFile) {
-      //   this.saveImage();
-      //   this._renderToImageFile = false;
-      // }
-      this._imageURL = this._renderer.domElement.toDataURL();
+      if (this._takeImageSnapshot) {
+        this._imageURL = this._renderer.domElement.toDataURL();
+      }
     })
   }
 
@@ -227,15 +225,6 @@ export class ThreeScene extends React.Component<Props> {
     this._camera.position.set(x, y, z);
   }
 
-  // saveImage(): void {
-  //   const imgDataURL = this._renderer.domElement.toDataURL();
-  //   // let a = document.createElement('a');
-  //   // a.href = imgDataURL;
-  //   // a.download = 'snapshot.jpg';
-  //   // a.click();
-  //   console.log(imgDataURL);
-  // }
-
   render() {
     return (
       <div>
@@ -244,7 +233,7 @@ export class ThreeScene extends React.Component<Props> {
           ref={(container) => { this._container = container }}
         />
         <div id='vr_button'/>
-        <input type="button" value="save image" onClick={() => this._renderToImageFile = true}/>
+        <input type="button" value="save image" />
       </div>
     )
   }

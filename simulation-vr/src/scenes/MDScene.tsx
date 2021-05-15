@@ -15,10 +15,12 @@ class MDScene extends CoordinateAxisScene {
 
   constructor(props: Props) {
     super(props);
-    this.saveImage = this.saveImage.bind(this);
+    this.startRecord = this.startRecord.bind(this);
+    this.stopRecord = this.stopRecord.bind(this);
   }
 
-  private saveImage() {
+  private startRecord(): void {
+    this._takeImageSnapshot = true;
     console.log('saveImage')
     if (this._imageURL === null) {
       return;
@@ -28,6 +30,10 @@ class MDScene extends CoordinateAxisScene {
       'capture',
       'test.jpg'
     )
+  }
+
+  private stopRecord(): void {
+    this._takeImageSnapshot = false;
   }
 
   render() {
@@ -40,10 +46,10 @@ class MDScene extends CoordinateAxisScene {
               <TextField id="outlined-basic" label="directory name to save image files" variant="outlined"/>
             </Grid>
             <Grid item xs={3}>
-              <Button variant="contained" color="primary" onClick={this.saveImage}>Start Record</Button>
+              <Button variant="contained" color="primary" onClick={this.startRecord}>Start Record</Button>
             </Grid>
             <Grid item xs={3}>
-              <Button variant="contained" color="primary">Stop Record</Button>
+              <Button variant="contained" color="primary" onClick={this.stopRecord}>Stop Record</Button>
             </Grid>
           </Grid>
         </Grid>

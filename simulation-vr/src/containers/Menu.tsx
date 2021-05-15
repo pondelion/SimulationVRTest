@@ -5,6 +5,7 @@ import TestScene from '../scenes/TestScene';
 import DigitDistributionScene from '../scenes/DigitDistributionScene';
 import CompanyFinancialDistributionScene from '../scenes/CompanyFinancialDistributionScene';
 import MDScene from '../scenes/MDScene';
+import UnityScene from '../scenes/UnityScene'
 
 
 interface State {
@@ -174,6 +175,14 @@ export class BubbleMenu extends React.Component<Props> {
             );
             e.preventDefault();
           }}>MD Scene</a>
+
+          <a id='md_scene' className="menu-item" href="/#" onClick={e => {
+            ReactDOM.render(
+              <UnityScene />,
+              document.getElementById('scene')
+            );
+            e.preventDefault();
+          }}>Unity Scene</a>
 
         </BurgerMenu>
       </div>
